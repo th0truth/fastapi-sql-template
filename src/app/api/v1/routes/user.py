@@ -1,22 +1,25 @@
-from typing import Annotated
 from fastapi import (
-  HTTPException,
   APIRouter,
-  status,
-  Depends,
-  Body
+  status
 )
+
+from api.dependencies import AsyncSessionDep 
+
+from core.schemas.users import User, UserCreate
+
 
 router = APIRouter(tags=["User"])
 
-
-@router.get("/me",
-  status_code=status.HTTP_200_OK,
-  response_model_exclude_none=True)
-async def get_active_user(
-  # user: Annotated[dict, Depends(get_current_user)]
+@router.post("",
+  status_code=status.HTTP_201_CREATED,
+  operation_id="createUser",
+  response_model=User)
+async def create_user(
+  user_create: UserCreate,
+  session: AsyncSessionDep
 ):
-  """
-  Returns user data.
-  """
-  return {"hello": "worls"}
+  user = User.model_validate(user_create)
+  session.add(user)
+  await session.commit()
+  await session.refresh(user)
+  return user
