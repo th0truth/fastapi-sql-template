@@ -16,4 +16,5 @@ dependencies = [
     "fastapi[standard] (>=0.116.1,<0.117.0)",
     "cryptography>=45.0.6",
     "sqlmodel>=0.0.29",
+    "prometheus-fastapi-instrumentator>=7.1.0",
 ]

@@ -3,9 +3,9 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse 
 
-# Local Dependencies
-from core.config import settings
+from prometheus_fastapi_instrumentator import Instrumentator
 
+from core.config import settings
 
 app = FastAPI(
   title=settings.NAME,
@@ -27,7 +27,6 @@ async def healt_check():
     content={"status": "Ok"}
   )
 
-
 # Set all CORS enabled origins
 if settings.all_cors_origins:
   # Add middlewares
@@ -38,6 +37,9 @@ if settings.all_cors_origins:
     allow_methods=["*"],
     allow_headers=["*"]
   )
+
+# Instrument the app (adds metrics like request count, latency, etc.)
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # Include main router to the app
 # app.include_router(api_main_router)

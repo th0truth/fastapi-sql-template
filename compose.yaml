@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   app:
     build:
@@ -7,3 +9,14 @@ services:
     env_file: .env
     ports:
       - "8000:8000"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    restart: always
