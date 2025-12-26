@@ -1,11 +1,23 @@
+from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.middleware.cors import CORSMiddleware
-# from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse 
-
-from prometheus_fastapi_instrumentator import Instrumentator
+from sqlmodel import SQLModel
 
 from core.config import settings
+from core.db import async_engine
+from api import api_main_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+  async with async_engine.begin() as conn:
+    # Create the tables for all the table models. 
+    await conn.run_sync(SQLModel.metadata.create_all)
+  yield
+  await async_engine.dispose()
+
 
 app = FastAPI(
   title=settings.NAME,
@@ -13,7 +25,7 @@ app = FastAPI(
   summary=settings.SUMMARY,
   version=settings.VERSION,
   openapi_url="/api/openapi.json",
-  # lifespan=lifespan
+  lifespan=lifespan
 )
 
 
@@ -26,6 +38,7 @@ async def healt_check():
   return JSONResponse(
     content={"status": "Ok"}
   )
+
 
 # Set all CORS enabled origins
 if settings.all_cors_origins:
@@ -42,4 +55,4 @@ if settings.all_cors_origins:
 Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # Include main router to the app
-# app.include_router(api_main_router)
+app.include_router(api_main_router)

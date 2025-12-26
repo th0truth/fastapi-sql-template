@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from core.config import settings
 
 # Import API routers
-from .v1 import api_v1_router
+from .v1 import api_v1_router 
 # from .v2 import api_v2_router
 
 # Initilize main router
