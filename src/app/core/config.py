@@ -4,13 +4,13 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 
 from pydantic import BaseModel, AnyUrl, BeforeValidator, computed_field
-from typing import Any, TypeVar, Annotated, List
+from typing import Any, TypeVar, Annotated, Union, List
 
 # Define a generic type variable
 ModelType = TypeVar("TypeModel", bound=BaseModel)
 
 # Parse middleware cors
-def parse_cors(v: Any) -> List[str] | str:
+def parse_cors(v: Any) -> Union[List[str] | str]:
   if isinstance(v, str) and not v.startswith("["):
     return [i.strip() for i in v.split(",")]
   elif isinstance(v, list | str):
@@ -40,12 +40,12 @@ class Settings(BaseSettings):
   FRONTEND_HOST: str = "http://localhost:8000"
 
   BACKEND_CORS_ORIGINS: Annotated[
-    List[AnyUrl] | str, BeforeValidator(parse_cors)
+    Union[List[AnyUrl], str], BeforeValidator(parse_cors)
   ] = []
   
   @computed_field  # type: ignore[prop-decorator]
   @property
-  def all_cors_origins(self) -> list[str]:
+  def all_cors_origins(self) -> List[str]:
     return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
       self.FRONTEND_HOST
     ]
@@ -59,7 +59,7 @@ class Settings(BaseSettings):
   POSTGRESQL_PASSWORD: str
   POSTGRESQL_HOST: str
   POSTGRESQL_PORT: str
-  POSTGRESQL_NAME: str
+  POSTGRESQL_DBNAME: str
 
   # JWT settings
   JWT_ALGORITHM: str = "RS256"
