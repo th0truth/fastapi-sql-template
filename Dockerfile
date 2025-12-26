@@ -1,4 +1,3 @@
-# Dockerfile for a FastAPI application with a lightweight image
 FROM python:3.13-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1
