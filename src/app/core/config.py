@@ -54,6 +54,13 @@ class Settings(BaseSettings):
   API_V1_STR: str = "/api/v1"
   API_V2_STR: str = "/api/v2"
 
+  # PostgreSQL settings
+  POSTGRESQL_USER: str
+  POSTGRESQL_PASSWORD: str
+  POSTGRESQL_HOST: str
+  POSTGRESQL_PORT: str
+  POSTGRESQL_NAME: str
+
   # JWT settings
   JWT_ALGORITHM: str = "RS256"
   JWT_EXPIRE_MINUTES: int
