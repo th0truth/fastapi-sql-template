@@ -5,21 +5,27 @@ from fastapi import (
 
 from api.dependencies import AsyncSessionDep 
 
-from core.schemas.users import User, UserCreate
+from core.schemas.users import User, UserBase, UserCreate
+from crud import CRUDBase
 
 
 router = APIRouter(tags=["User"])
 
+
 @router.post("",
+  response_model=User,
   status_code=status.HTTP_201_CREATED,
-  operation_id="createUser",
-  response_model=User)
+  operation_id="createUser")
 async def create_user(
   user_create: UserCreate,
   session: AsyncSessionDep
 ):
-  user = User.model_validate(user_create)
-  session.add(user)
-  await session.commit()
-  await session.refresh(user)
+  user = await CRUDBase(session, User).create(user_create)
   return user
+
+@router.get("/me",
+  response_model=UserBase,
+  status_code=status.HTTP_200_OK,
+  operation_id="getCurrentUser")
+async def get_active_user():
+  pass
